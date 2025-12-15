@@ -1,29 +1,52 @@
 import { useState } from "react";
+import useLocalStorage from "./useLocalStorage";
+import useFormInput from "./useFormInput";
+
+// Custom Hook (put this at the top of your file)
+// function useLocalStorage(key, initialValue) {
+//   const [storedValue, setStoredValue] = useState(() => {
+//     try {
+//       const item = window.localStorage.getItem(key);
+//       return item ? JSON.parse(item) : initialValue;
+//     } catch (error) {
+//       console.error("Error loading from localStorage:", error);
+//       return initialValue;
+//     }
+//   });
+
+//   // Note: We'll skip the useEffect here since localStorage isn't available in artifacts
+//   // In a real app, you'd include the useEffect from above
+
+//   return [storedValue, setStoredValue];
+// }
 
 function ExpenseTracker() {
-  const [expenses, setExpenses] = useState([]);
-  const [name, setName] = useState("");
-  const [amount, setAmount] = useState("");
+  //const [expenses, setExpenses] = useState([]);
+  const [expenses, setExpenses] = useLocalStorage("expenses", []);
+  // const [name, setName] = useState("");
+  // const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("Food");
   const categories = ["Food", "Transport", "Entertainment", "Bills", "Other"];
+  const nameInput = useFormInput('');
+  const amountInput = useFormInput('');
 
   const addExpense = () => {
-    if (name.trim() === "" || amount.trim() === "" || amount <= 0) {
+    if (nameInput.value.trim() === "" || amountInput.value.trim() === "" || amountInput.value <= 0) {
       alert("Please enter valid expense details");
       return;
     }
 
     const newExpense = {
       id: Date.now(),
-      name: name,
-      amount: parseFloat(amount),
+      name: nameInput.value,
+      amount: parseFloat(amountInput.value),
       category: category,
       date: new Date().toLocaleDateString(),
     };
 
     setExpenses([...expenses, newExpense]);
-    setAmount("");
-    setName("");
+    nameInput.reset();
+    amountInput.reset();
     setCategory("Food");
   };
 
@@ -48,22 +71,29 @@ function ExpenseTracker() {
       >
         <h2>Add New Expense</h2>
         <div style={{ marginBottom: "10px" }}>
-          <input
+          {/* <input
             type="text"
             placeholder="Expense name (e.g., Lunch)"
             value={name}
             onChange={(e) => setName(e.target.value)}
             style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+          /> */}
+          <input
+            {...nameInput}
+            type="text"
+            placeholder="Expense name (e.g., Lunch)"
+            style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
           />
         </div>
         <div style={{ marginBottom: "10px" }}>
-          <input
+          {/* <input
             type="number"
             placeholder="Amount (e.g., 50)"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-          />
+          /> */}
+          <input {...amountInput} placeholder="Amount" type="number"/>
         </div>
         <div style={{ marginBottom: "10px" }}>
           <select
